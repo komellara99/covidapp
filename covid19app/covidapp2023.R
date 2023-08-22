@@ -349,13 +349,7 @@ ui <-
        ".small-box.bg-green { background-color: #339989 !important; border-radius: 8px; }",
       ".small-box.bg-light-blue { background-color: #7DE2D1 !important; border-radius: 8px; }",
       ".info-box-icon.bg-light-blue { background-color: #339989 !important;}",
-      ".navbar { background-color: #FFFAFB;
-      
-                           font-family: Copperplate;
-                           font-size: 18px;
-                           color: #2B2C28;
-                           }",
-      
+      ".navbar { background-color: #FFFAFB; font-family: Copperplate;font-size: 18px; color: #2B2C28;}",
       ".plot4 {width: 800px; margin:auto;}",
       ".paginate_button .active >a {background-color:black;}",
       ".dropdown-menu > .active > a {background-color:#7DE2D1 !important;}",
@@ -379,14 +373,10 @@ ui <-
       ".blabla {background-color: #339989 !important; margin:10px; padding:10px; height:40px;border-radius: 5px; justify-content: center; align-items: center; text-align:center; }",
       ".blabla2 {background-color: #339989 !important; margin:10px; padding:10px; height:70px;border-radius: 5px; justify-content: center; align-items: center; text-align:center; height:120px; color: white;}",
       ".stolpec {text-align:left; } ",
-      
-      
-      
       ".podatki {margin:10px; padding:10px; height:70px;border-radius: 5px; justify-content: center; align-items: center; text-align:center;}",
       "#italy > .col-sm-4 > .small-box.bg-yellow > .inner > h3 {font-size: 18px;}",
       "#italy > .col-sm-4 > .small-box.bg-blue > .inner > h3 {font-size: 18px;}",
       "#italy > .col-sm-4 > .small-box.bg-navy > .inner > h3 {font-size: 18px;}",
-      
       "#italy > .col-sm-4 > .small-box.bg-yellow > .icon-large > .fas.fa-virus-covid {font-size: 40px; color: #1e5c52 !important; opacity: 0.3;}",
       "#italy > .col-sm-4 > .small-box.bg-blue > .icon-large > .fas.fa-virus-covid {font-size: 40px; color: #339989 !important; opacity: 0.3;}",
       "#italy > .col-sm-4 > .small-box.bg-navy > .icon-large > .fas.fa-virus-covid {font-size: 40px; color: #7DE2D1 !important; opacity: 0.3;}",
@@ -395,92 +385,11 @@ ui <-
       ".small-box.bg-yellow { height: 72px; color: #1e5c52 !important; border-radius: 8px; background-color: #ffffff !important; font-weight: bold !important;}",
       ".small-box.bg-blue {height: 72px; color: #339989 !important; border-radius: 8px; background-color: #ffffff !important; font-weight: bold !important;}",
       ".small-box.bg-navy { height: 72px; color: #7DE2D1 !important; border-radius: 8px; background-color: #ffffff !important; font-weight: bold !important;}",
-      
-      
-      
-      
-      
-      
     )),
   
   )
 
 server <- function(input, output) {
-  
-  
-  ##delete
-  Stage = c("Survey", "Work Sample", "Interview", "Stats Test")
-  Score = c("+33.7%", "+14.8%", "+20.8%", "+28.17%")
-  no1_cand = data.frame(Stage, Score)
-  Score =c("+37.1%", "+14.2%", "+19.3%", "+26.3%")
-  no2_cand = data.frame(Stage, Score)
-  Score = c("+33.1%", "+22.2%", "+17.3%", "+25.8%")
-  no3_cand = data.frame(Stage, Score)
-  Score = c("+29.1%", "+17.2%", "+15.3%", "+23.3%")
-  no4_cand = data.frame(Stage, Score)
-  Score = c("+22.1%", "+12.5%", "+11.4%", "+19.5%")
-  no5_cand = data.frame(Stage, Score)
-  
-  top5_data <- data.frame(no1_cand, no2_cand, no3_cand, no4_cand)
-  output$top5 = renderTable({
-    top5_data  
-  })
-  output$top52 = renderTable({
-    top5_data  
-  })
-  output$plot <- renderPlot({
-    ggplot(data = diamonds, aes(x = cut, fill = cut)) +
-      
-      geom_bar( alpha = 0.8) +
-      theme_solarized_2(light=FALSE)+
-      theme(
-        text = element_text(color="white"),
-        title = element_text(color = "white"),
-        axis.title.x = element_blank(),
-        panel.background = element_rect(fill = NA),
-        plot.background = element_rect(fill = "#1e5c52", color = NA),
-        panel.border = element_rect(fill = NA, color = "#1e5c52"), 
-        legend.background = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        legend.key = element_blank(),
-        plot.title = element_text(hjust = 0.5)
-        #legend.position = "bottom"
-      )+
-      scale_color_brewer(palette = "Pastel1")
-    
-  })
-  
-  
-  output$plot2 <- renderPlot({
-    ggplot(data = diamonds, aes(x=cut, fill = cut)) +
-      geom_bar(alpha = 0.8)
-    
-  })
-  output$plot22 <- renderPlot({
-    ggplot(data = diamonds, aes(x=cut, fill = cut)) +
-      geom_bar(alpha = 0.8)
-    
-  })
-  output$plot3 <- renderPlot({
-    ggplot(data = diamonds, aes(x=cut, fill = cut)) +
-      geom_bar(alpha = 0.8)
-    
-  })
-  output$plot4 <- renderPlot({
-    ggplot(data = diamonds, aes(x=cut, fill = cut)) +
-      geom_bar(alpha = 0.8)
-    
-  })
-  output$plot5 <- renderPlot({
-    ggplot(data = diamonds, aes(x=cut, fill = cut)) +
-      geom_bar(alpha = 0.8)
-    
-  })
-  output$map <- renderLeaflet({
-    leaflet() %>% addTiles() %>% setView(lng = 0, lat = 0, zoom = 2)
-  })
-  ##delete-
   #data clean-up ----
   #homepage plot data----
   data_home_plot0 <- reactive({x1<-basic_data %>%
@@ -576,9 +485,7 @@ server <- function(input, output) {
   homepage_plot_merge2 <- function(){
     data3 <- homeplot_deaths_fixdate(data_home_plot_vacc());
     data2 <- homeplot_deaths_fixdate(data_home_plot_deaths());
-    
-    
-    
+
     homeplot_fixdate(data_home_plot()) %>%
       ggplot() +
       geom_line(aes(x = neki, y = total_c), size = 2, alpha = 0.75, col = "#339989") +
@@ -1822,11 +1729,7 @@ server <- function(input, output) {
                               paste0('<extra>Forecast</extra>Continent Name: %{text}\n',name_fix(input$metric_continent_card),': %{y}\nDate: %{x} ')
                             ))
     highlight(plt)
-    ###########
-    
-    
-    
-    
+    ########### 
     
   }
   
@@ -1914,7 +1817,6 @@ server <- function(input, output) {
     
   }
   plot_data_continent_forecast <- function(){
-    
     ifelse(input$moving_av_continent ==T & !is.null(input$moving_av_days_continent),
            forecastdata <- forecast_data2()%>%group_by(location)%>%mutate(ma2=rollapply(metric,ma_days2(),mean,align='right',fill=NA)),
            forecastdata <- forecast_data2()
@@ -1963,7 +1865,6 @@ server <- function(input, output) {
                         "download_csv",
                         label = "Download as CSV",
                         class = "btn3"
-                      
     )
     
   })
