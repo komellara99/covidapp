@@ -28,11 +28,6 @@ library(bsplus)
 
 
 theme2 <- bslib::bs_theme(version = 4)
-#download data----
-
-
-
-
 
 ui <- 
   navbarPage(
@@ -405,20 +400,23 @@ ui <-
 server <- function(input, output) {
   rv <- reactiveValues()
   rv$setupComplete <- FALSE
+  initial_data <- NULL
   
-observe({ 
-  tryCatch({
-    initial_data <- read_csv("https://covid.ourworldindata.org/data/owid-covid-data.csv")
-    rv$setupComplete <- TRUE
-  }, error = function(e) {
-    message("Error while downloading the data")
-    message(e$message)
-  })
-  output$setupComplete <- reactive({
-    return(rv$setupComplete)
-  })
-  outputOptions(output, 'setupComplete', suspendWhenHidden=FALSE)
-})   
+
+    tryCatch({
+      initial_data <- read_csv("https://covid.ourworldindata.org/data/owid-covid-data.csv")
+      observe({ 
+      rv$setupComplete <- TRUE
+      })   
+    }, error = function(e) {
+      message("Error while downloading the data")
+      message(e$message)
+    })
+    output$setupComplete <- reactive({
+      return(rv$setupComplete)
+    })
+    outputOptions(output, 'setupComplete', suspendWhenHidden=FALSE)
+  
   
   basic_data <- initial_data[, c(2:6,8,9,11,12,14,15,37,39,41,42)] #extract basics
   basic_data2 <- initial_data[, c(2:6,8,9,11,12,14,15,37,39,41,42, 63, 34, 50)]
