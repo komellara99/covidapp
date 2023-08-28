@@ -29,55 +29,8 @@ library(bsplus)
 
 theme2 <- bslib::bs_theme(version = 4)
 #download data----
-initial_data <- readr::read_csv("https://covid.ourworldindata.org/data/owid-covid-data.csv")
-basic_data <- initial_data[, c(2:6,8,9,11,12,14,15,37,39,41,42)] #extract basics
-basic_data2 <- initial_data[, c(2:6,8,9,11,12,14,15,37,39,41,42, 63, 34, 50)]
-non_countries <- c("Asia", "Europe", "North America", "South America", "Oceania", "Africa", "World", "High income", "European Union", "Low income","Upper middle income","Lower middle income")
-`%!in%` = Negate(`%in%`)
-download.file("http://thematicmapping.org/downloads/TM_WORLD_BORDERS_SIMPL-0.3.zip" , destfile="world_shape_file.zip")
-unzip("world_shape_file.zip")
- # dat <- iso3166[,c("a3", "ISOname")] 
- # dat2 <- dat
- # dat <- rename(dat, "location" = ISOname)
- # dat <- rename(dat, "ISO3" = a3)
- # dat2 <- rename(dat2, "country" = ISOname)
- # dat2 <- rename(dat2, "ISO3" = a3)
 
-drzave <- unique(  basic_data[, 2])
 
-non_countries2 <- c("Asia", "Europe", "North America", "South America", "Oceania", "Africa", "World", "High income", "European Union", "Low income","Upper middle income","Lower middle income",
-                   "England", "International", "Kosovo","Micronesia (country)", "Northern Ireland", "Scotland", "Timor", "Wales")
-drzave <- drzave%>%filter(location %!in% non_countries2)
-drzave$iso <- countrycode(drzave$location, "country.name","iso3c")
-
-continents <- c("Asia", "Europe", "North America", "South America", "Oceania", "Africa")
-dat <- drzave
-dat2 <- drzave
-dat <- rename(dat, "ISO3" = iso)
-dat2 <- rename(dat2, "country" = location)
-dat2 <- rename(dat2, "ISO3" = iso)
-
-#group by day and continent, new cases and deaths only
-continent_day <-basic_data %>% group_by(continent,date)%>% summarise(
-  new_cases = sum(new_cases),
-  new_deaths = sum(new_deaths)
-)
-#basic data for every day and country
-#countryday_data <- initial_data[, c(3,4,6,9,12,15)]
-countryday_data <- initial_data[, c(3,4,6,9,12,15)]
-
-metric_choices <- colnames(basic_data)[c(5,7,9,11,13)]
-metric_names <- gsub("_", " ", metric_choices)
-metric_names <- paste0(toupper(substr(metric_names,1,1)), substr(metric_names, 2, nchar(metric_names)))
-
-metric_list <- as.list(metric_choices)
-names(metric_list) <- metric_names
-
-name_fix <- function(x){
-  s1 <- gsub("_", " ", x)
-  s2 <- paste0(toupper(substr(s1,1,1)), substr(s1, 2, nchar(s1)))
-  return (s2)
-}
 
 
 
@@ -94,7 +47,13 @@ ui <-
     tabPanel("Homepage",
              withSpinner(
              fluidPage( 
-               
+               conditionalPanel(
+                 condition = "!output.setupComplete",
+                 style = "display: flex; justify-content: center; align-items: center;",
+                 h1("Data is downloading... Please wait.")
+               ),
+               conditionalPanel(
+                 condition = "output.setupComplete",
                fluidRow(
                  valueBoxOutput("valuebox_cases"),
                  valueBoxOutput("valuebox_deaths"),
@@ -142,12 +101,18 @@ ui <-
                    box(width=12, class="homeplot_d", plotOutput("home_hist"))
                  )
                  )
-             ),color = "#7DE2D1", type = 7)),
+             )),color = "#7DE2D1", type = 7)),
     #data by country----
     navbarMenu("Country data",
                tabPanel("Data by country",
                         fluidPage( 
-                        
+                          conditionalPanel(
+                            condition = "!output.setupComplete",
+                            style = "display: flex; justify-content: center; align-items: center;",
+                            h1("Data is downloading... Please wait.")
+                          ),
+                          conditionalPanel(
+                            condition = "output.setupComplete",
                         
                         br(),
                         sidebarLayout(
@@ -182,9 +147,16 @@ ui <-
                         ),
                         br(),
                         
-                        )),
+                        ))),
                tabPanel("Compare Countries",
                         fluidPage(
+                          conditionalPanel(
+                            condition = "!output.setupComplete",
+                            style = "display: flex; justify-content: center; align-items: center;",
+                            h1("Data is downloading... Please wait.")
+                          ),
+                          conditionalPanel(
+                            condition = "output.setupComplete",
                           br(),
                           sidebarLayout(
                             sidebarPanel(
@@ -201,12 +173,18 @@ ui <-
                             ))
                         
                           
-                        ))
+                        )))
     ),
     navbarMenu("Continent data",
                tabPanel("Data by continent",
                         fluidPage( 
-                          
+                          conditionalPanel(
+                            condition = "!output.setupComplete",
+                            style = "display: flex; justify-content: center; align-items: center;",
+                            h1("Data is downloading... Please wait.")
+                          ),
+                          conditionalPanel(
+                            condition = "output.setupComplete",
                           
                           br(),
                           sidebarLayout(
@@ -239,9 +217,15 @@ ui <-
                           ),
                           br(),
                           
-                        )),
+                        ))),
                tabPanel("Compare Continents",
                         fluidPage(
+                          conditionalPanel(
+                            condition = "!output.setupComplete",
+                            h1("Data Downloading... Please wait.")
+                          ),
+                          conditionalPanel(
+                            condition = "output.setupComplete",
                           br(),
                           sidebarLayout(
                             sidebarPanel(
@@ -257,12 +241,18 @@ ui <-
                               uiOutput("forecast_panel2")
                             ))
                           
-                        ))
+                        )))
     ),
     #map----
     tabPanel("Map",
              fluidPage( 
-               
+               conditionalPanel(
+                 condition = "!output.setupComplete",
+                 style = "display: flex; justify-content: center; align-items: center;",
+                 h1("Data is downloading... Please wait.")
+               ),
+               conditionalPanel(
+                 condition = "output.setupComplete",
                fluidRow(
                  class="input-row",
                    #checkboxInput(inputId = "cgf", label = "Metrics per million")),
@@ -280,10 +270,17 @@ ui <-
                br(),
                #fluidRow(class="plot4",plotOutput("plot4"))
                fluidRow(class = "map1",leafletOutput("world_map")%>% withSpinner(color="#7DE2D1", type = 7))  
-             )),
+             ))),
     
     
     tabPanel("Data",
+             conditionalPanel(
+               condition = "!output.setupComplete",
+               style = "display: flex; justify-content: center; align-items: center;",
+               h1("Data is downloading... Please wait.")
+             ),
+             conditionalPanel(
+               condition = "output.setupComplete",
              uiOutput("downloadButton"),
              br(),
              fluidRow(
@@ -296,14 +293,14 @@ ui <-
                            width = 12,
                            #column(12, align="center", tableOutput('top5')))
                            dataTableOutput ("countrytable")), align="center"
-               ))),
+               )))),
     tabPanel("About",
              h3("About the project"),
              p("This application was made as a part of final thesis for a Bachelor's degree in Computer Science."),
              p("The web application is built using R and RShiny package, and it interactively displays data of the entire Covid-19 pandemic."),
              br(),
              p("Author: Lara Komel"), 
-             p('Mentor: Prof. Dr. Uroš Godnov'),br(),
+             p('Mentor: Assistent professor prof. Dr. Uroš Godnov'),br(),
              p("School: University of Primorska, The Faculty of Mathematics, Natural Sciences and Information Technologies (UP FAMNIT)"),br(),
              p("April 2023"),
              tags$img(src = "https://www.famnit.upr.si/sl/resources/images/studenti/alumni-famnit/logofamnit-02.png", width = "400px")
@@ -349,7 +346,13 @@ ui <-
        ".small-box.bg-green { background-color: #339989 !important; border-radius: 8px; }",
       ".small-box.bg-light-blue { background-color: #7DE2D1 !important; border-radius: 8px; }",
       ".info-box-icon.bg-light-blue { background-color: #339989 !important;}",
-      ".navbar { background-color: #FFFAFB; font-family: Copperplate;font-size: 18px; color: #2B2C28;}",
+      ".navbar { background-color: #FFFAFB;
+      
+                           font-family: Copperplate;
+                           font-size: 18px;
+                           color: #2B2C28;
+                           }",
+      
       ".plot4 {width: 800px; margin:auto;}",
       ".paginate_button .active >a {background-color:black;}",
       ".dropdown-menu > .active > a {background-color:#7DE2D1 !important;}",
@@ -373,10 +376,14 @@ ui <-
       ".blabla {background-color: #339989 !important; margin:10px; padding:10px; height:40px;border-radius: 5px; justify-content: center; align-items: center; text-align:center; }",
       ".blabla2 {background-color: #339989 !important; margin:10px; padding:10px; height:70px;border-radius: 5px; justify-content: center; align-items: center; text-align:center; height:120px; color: white;}",
       ".stolpec {text-align:left; } ",
+      
+      
+      
       ".podatki {margin:10px; padding:10px; height:70px;border-radius: 5px; justify-content: center; align-items: center; text-align:center;}",
       "#italy > .col-sm-4 > .small-box.bg-yellow > .inner > h3 {font-size: 18px;}",
       "#italy > .col-sm-4 > .small-box.bg-blue > .inner > h3 {font-size: 18px;}",
       "#italy > .col-sm-4 > .small-box.bg-navy > .inner > h3 {font-size: 18px;}",
+      
       "#italy > .col-sm-4 > .small-box.bg-yellow > .icon-large > .fas.fa-virus-covid {font-size: 40px; color: #1e5c52 !important; opacity: 0.3;}",
       "#italy > .col-sm-4 > .small-box.bg-blue > .icon-large > .fas.fa-virus-covid {font-size: 40px; color: #339989 !important; opacity: 0.3;}",
       "#italy > .col-sm-4 > .small-box.bg-navy > .icon-large > .fas.fa-virus-covid {font-size: 40px; color: #7DE2D1 !important; opacity: 0.3;}",
@@ -385,11 +392,86 @@ ui <-
       ".small-box.bg-yellow { height: 72px; color: #1e5c52 !important; border-radius: 8px; background-color: #ffffff !important; font-weight: bold !important;}",
       ".small-box.bg-blue {height: 72px; color: #339989 !important; border-radius: 8px; background-color: #ffffff !important; font-weight: bold !important;}",
       ".small-box.bg-navy { height: 72px; color: #7DE2D1 !important; border-radius: 8px; background-color: #ffffff !important; font-weight: bold !important;}",
+      ".legend {margin: 50px;}"
+      
+      
+      
+      
+      
     )),
   
   )
 
 server <- function(input, output) {
+  rv <- reactiveValues()
+  rv$setupComplete <- FALSE
+  
+observe({ 
+  tryCatch({
+    initial_data <- read_csv("https://covid.ourworldindata.org/data/owid-covid-data.csv")
+    rv$setupComplete <- TRUE
+  }, error = function(e) {
+    message("Error while downloading the data")
+    message(e$message)
+  })
+  output$setupComplete <- reactive({
+    return(rv$setupComplete)
+  })
+  outputOptions(output, 'setupComplete', suspendWhenHidden=FALSE)
+})   
+  
+  basic_data <- initial_data[, c(2:6,8,9,11,12,14,15,37,39,41,42)] #extract basics
+  basic_data2 <- initial_data[, c(2:6,8,9,11,12,14,15,37,39,41,42, 63, 34, 50)]
+  non_countries <- c("Asia", "Europe", "North America", "South America", "Oceania", "Africa", "World", "High income", "European Union", "Low income","Upper middle income","Lower middle income")
+  `%!in%` = Negate(`%in%`)
+  download.file("http://thematicmapping.org/downloads/TM_WORLD_BORDERS_SIMPL-0.3.zip" , destfile="world_shape_file.zip")
+  unzip("world_shape_file.zip")
+  # dat <- iso3166[,c("a3", "ISOname")] 
+  # dat2 <- dat
+  # dat <- rename(dat, "location" = ISOname)
+  # dat <- rename(dat, "ISO3" = a3)
+  # dat2 <- rename(dat2, "country" = ISOname)
+  # dat2 <- rename(dat2, "ISO3" = a3)
+  
+  drzave <- unique(  basic_data[, 2])
+  
+  non_countries2 <- c("Asia", "Europe", "North America", "South America", "Oceania", "Africa", "World", "High income", "European Union", "Low income","Upper middle income","Lower middle income",
+                      "England", "International", "Kosovo","Micronesia (country)", "Northern Ireland", "Scotland", "Timor", "Wales")
+  drzave <- drzave%>%filter(location %!in% non_countries2)
+  drzave$iso <- countrycode(drzave$location, "country.name","iso3c")
+  
+  continents <- c("Asia", "Europe", "North America", "South America", "Oceania", "Africa")
+  dat <- drzave
+  dat2 <- drzave
+  dat <- rename(dat, "ISO3" = iso)
+  dat2 <- rename(dat2, "country" = location)
+  dat2 <- rename(dat2, "ISO3" = iso)
+  
+  #group by day and continent, new cases and deaths only
+  continent_day <-basic_data %>% group_by(continent,date)%>% summarise(
+    new_cases = sum(new_cases),
+    new_deaths = sum(new_deaths)
+  )
+  #basic data for every day and country
+  #countryday_data <- initial_data[, c(3,4,6,9,12,15)]
+  countryday_data <- initial_data[, c(3,4,6,9,12,15)]
+  
+  metric_choices <- colnames(basic_data)[c(5,7,9,11,13)]
+  metric_names <- gsub("_", " ", metric_choices)
+  metric_names <- paste0(toupper(substr(metric_names,1,1)), substr(metric_names, 2, nchar(metric_names)))
+  
+  metric_list <- as.list(metric_choices)
+  names(metric_list) <- metric_names
+  
+  today <- Sys.Date()%>%format("%Y-%m-%d")
+  
+  name_fix <- function(x){
+    s1 <- gsub("_", " ", x)
+    s2 <- paste0(toupper(substr(s1,1,1)), substr(s1, 2, nchar(s1)))
+    return (s2)
+  }
+  
+  
   #data clean-up ----
   #homepage plot data----
   data_home_plot0 <- reactive({x1<-basic_data %>%
@@ -435,15 +517,20 @@ server <- function(input, output) {
     data1 <- homeplot_fixdate(data_home_plot())
     
     p <- plot_ly() %>%
-      add_trace(x = ~data1$neki, y = ~data1$total_c, type = 'scatter', mode = 'lines', name = "World cases", line = list(color = '#131515', width = 2)) %>%
-      add_trace(x = ~data2$neki, y = ~data2$total_d, type = 'scatter', mode = 'lines', name = "World deaths", line = list(color = '#339989', width = 2)) %>%
-      add_trace(x = ~data3$neki, y = ~data3$total_v, type = 'scatter', mode = 'lines', name = "World vaccinations", line = list(color = '#2B2C28', width = 2)) %>%
+      add_trace(x = ~data1$neki, y = ~data1$total_c, type = 'scatter', mode = 'lines', name = "World cases", line = list(color = '#131515', width = 2), yaxis = "y1") %>%
+      add_trace(x = ~data2$neki, y = ~data2$total_d, type = 'scatter', mode = 'lines', name = "World deaths", line = list(color = '#339989', width = 2), yaxis = "y2") %>%
+      add_trace(x = ~data3$neki, y = ~data3$total_v, type = 'scatter', mode = 'lines', name = "World vaccinations", line = list(color = '#2B2C28', width = 2), yaxis = "y1") %>%
       layout(
              #title = "Total world cases by month",
              xaxis = list(title = ""),
-             yaxis = list(title = "Total cases"),
-             legend = list(title = "Legend"),
-             yaxis = list(tickformat = ","))
+             yaxis = list(title = "Total cases and vaccinations"),
+             yaxis2 = list(title = "Total deaths", overlaying = "y", side = "right"),
+             legend = list(title = "Legend", orientation = "h",
+                          xanchor = "center",  
+                          x = 0.5),
+             margin = list(l = 100, r = 100)
+             #yaxis = list(tickformat = ",")
+             )
     
     return(p)
   }
@@ -455,10 +542,10 @@ server <- function(input, output) {
     bar <- barplot(
       data$cases, 
       #names.arg = data$location, 
-      col = "#2B2C28", 
+      col = "#339989", 
       border = "black",
       ylab = "Cases", 
-      main = "Histogram by Country")
+      main = "Bar-chart by Country")
     
     modified_labels <- sapply(strsplit(data$location, " "), function(x) {
       if (length(x) > 1) {
@@ -485,7 +572,9 @@ server <- function(input, output) {
   homepage_plot_merge2 <- function(){
     data3 <- homeplot_deaths_fixdate(data_home_plot_vacc());
     data2 <- homeplot_deaths_fixdate(data_home_plot_deaths());
-
+    
+    
+    
     homeplot_fixdate(data_home_plot()) %>%
       ggplot() +
       geom_line(aes(x = neki, y = total_c), size = 2, alpha = 0.75, col = "#339989") +
@@ -678,7 +767,7 @@ server <- function(input, output) {
     dateInput(
       inputId = "map_date_i",
       label = "Select date",
-      value ="2020-12-31"
+      value ="2021-12-31"
     )
   })
   output$map_dates <- renderUI({
@@ -686,7 +775,7 @@ server <- function(input, output) {
       inputId = "map_dates_i",
       label = "Select date range",
       start = "2020-01-01",
-      end = "2020-12-31"
+      end = today
     )
     
   })
@@ -757,7 +846,7 @@ server <- function(input, output) {
         dateInput(
           inputId = "map_date_i",
           label = "Select date",
-          value ="2020-12-31"
+          value ="2021-12-31"
         )
     })}
     else {
@@ -766,7 +855,7 @@ server <- function(input, output) {
           inputId = "map_dates_i",
           label = "Select date range",
           start = "2020-01-01",
-          end = "2020-12-31"
+          end = today
         )
       })
     }
@@ -830,7 +919,7 @@ server <- function(input, output) {
       multiple = TRUE,
       label = "Select one or multiple countries",
       choices = sort(unique((basic_data%>%filter(location %!in% non_countries2))$location)),
-      selected = c("Slovenia", "Italy", "Croatia")
+      selected = c("United States", "Italy", "Croatia")
     )})
   
   output$metric_country <- renderUI({
@@ -842,8 +931,8 @@ server <- function(input, output) {
   output$daterange_country <- renderUI({
     dateRangeInput(inputId = "daterange_country",
                    label = "Select date range",
-                   start = "2020-01-01",
-                   end = "2020-12-31")
+                   start = "2021-01-01",
+                   end = today)
   })
   output$moving_av_country <- renderUI({ 
     checkboxInput(
@@ -1042,29 +1131,33 @@ server <- function(input, output) {
     )
   })
   
-  #country data boxes top
+  #country data boxes top format(home_boxes_data()[1], big.mark=",")
   output$countryboxes <- renderUI({
     req(input$country_card)
     data2 <- func_card_info2(input$country_card, input$daterange_card[1], input$daterange_card[2])
     data <- leaderboard_data()%>%filter(location == input$country_card)
    
       
-      fluidRow(
-        div(id="italy",
-            valueBox(
-              paste0("Total cases: ", data[3]), paste0("In date-range: ", data2[2]), icon = icon("virus-covid"),
-              color = "yellow"
-            )),
-        div(id="italy",
-            valueBox(
-              paste0("Total deaths: ", data[4]), paste0("In date-range: ", data2[3]), icon = icon("virus-covid"),
-              color = "blue"
-            )),
-        div(id="italy",
-            valueBox(
-              paste0("Total vaccinations: ", data[5]), paste0("In date-range: ", data2[4]), icon = icon("virus-covid"),
-              color = "navy"
-            ))
+    fluidRow(
+      div(id="italy",
+          valueBox(
+            paste0("Total cases: ", format(as.integer(data[3]), big.mark=",")), 
+            paste0("In date-range: ", format(data2[2],big.mark=",")), 
+            icon = icon("virus-covid"),
+            color = "yellow"
+          )),
+      div(id="italy",
+          valueBox(
+            paste0("Total deaths: ", format(as.integer(data[4]), big.mark=",")), 
+            paste0("In date-range: ", format(data2[3],big.mark=",")), 
+            icon = icon("virus-covid"),
+            color = "blue"
+          )),
+      div(id="italy",
+          valueBox(
+            paste0("Total vaccinations: ", format(as.integer(data[5]), big.mark=",")), paste0("In date-range: ", format(data2[4],big.mark=",")), icon = icon("virus-covid"),
+            color = "navy"
+          ))
     )
   })
   
@@ -1116,7 +1209,7 @@ server <- function(input, output) {
       multiple = FALSE,
       label = "Select one country",
       choices = sort(unique((basic_data%>%filter(location %!in% non_countries2))$location)),
-      selected = "Slovenia"
+      selected = "Italy"
     )})
   
   output$metric_country_card <- renderUI({
@@ -1128,8 +1221,8 @@ server <- function(input, output) {
   output$daterange_card <- renderUI({
     dateRangeInput(inputId = "daterange_card",
                    label = "Select date range",
-                   start = "2020-01-01",
-                   end = "2020-12-31")
+                   start = "2021-01-01",
+                   end = today)
   })
   #plot country----
   clean_data_country_card <- reactive({cases_new <- basic_data %>% 
@@ -1363,7 +1456,7 @@ server <- function(input, output) {
       multiple = TRUE,
       label = "Select one or multiple continent",
       choices = continents,
-      selected = c("Europe", "Asia")
+      selected = c("North America", "Asia")
     )})
   
   output$metric_continent <- renderUI({
@@ -1375,8 +1468,8 @@ server <- function(input, output) {
   output$daterange_continent <- renderUI({
     dateRangeInput(inputId = "daterange_continent",
                    label = "Select date range",
-                   start = "2020-01-01",
-                   end = "2020-12-31")
+                   start = "2021-01-01",
+                   end = today)
   })
   output$moving_av_continent <- renderUI({ 
     checkboxInput(
@@ -1587,17 +1680,17 @@ server <- function(input, output) {
     fluidRow(
       div(id="italy",
           valueBox(
-            paste0("Total cases: ", data[3]), paste0("In date-range: ", data2[3]), icon = icon("virus-covid"),
+            paste0("Total cases: ", format((as.integer(data[3])), big.mark=",")), paste0("In date-range: ", format((as.integer(data2[3])), big.mark=",")), icon = icon("virus-covid"),
             color = "yellow"
           )),
       div(id="italy",
           valueBox(
-            paste0("Total deaths: ", data[4]), paste0("In date-range: ", data2[4]), icon = icon("virus-covid"),
+            paste0("Total deaths: ", format((as.integer(data[4])), big.mark=",")), paste0("In date-range: ", format((as.integer(data2[4])), big.mark=",")), icon = icon("virus-covid"),
             color = "blue"
           )),
       div(id="italy",
           valueBox(
-            paste0("Total vaccinations: ", data[5]), paste0("In date-range: ", data2[5]), icon = icon("virus-covid"),
+            paste0("Total vaccinations: ", format((as.integer(data[5])), big.mark=",")), paste0("In date-range: ", format((as.integer(data2[5])), big.mark=",")), icon = icon("virus-covid"),
             color = "navy"
           ))
     )
@@ -1651,7 +1744,7 @@ server <- function(input, output) {
       multiple = FALSE,
       label = "Select one continent",
       choices = continents,
-      selected = "Europe"
+      selected = "Asia"
     )})
   
   output$metric_continent_card <- renderUI({
@@ -1663,8 +1756,8 @@ server <- function(input, output) {
   output$daterange_card_continent <- renderUI({
     dateRangeInput(inputId = "daterange_card_continent",
                    label = "Select date range",
-                   start = "2020-01-01",
-                   end = "2020-12-31")
+                   start = "2021-01-01",
+                   end = today)
   })
   #plot continent----
   clean_data_continent_card <- reactive({cases_new <- basic_data %>% 
@@ -1729,7 +1822,11 @@ server <- function(input, output) {
                               paste0('<extra>Forecast</extra>Continent Name: %{text}\n',name_fix(input$metric_continent_card),': %{y}\nDate: %{x} ')
                             ))
     highlight(plt)
-    ########### 
+    ###########
+    
+    
+    
+    
     
   }
   
@@ -1817,6 +1914,7 @@ server <- function(input, output) {
     
   }
   plot_data_continent_forecast <- function(){
+    
     ifelse(input$moving_av_continent ==T & !is.null(input$moving_av_days_continent),
            forecastdata <- forecast_data2()%>%group_by(location)%>%mutate(ma2=rollapply(metric,ma_days2(),mean,align='right',fill=NA)),
            forecastdata <- forecast_data2()
@@ -1865,6 +1963,7 @@ server <- function(input, output) {
                         "download_csv",
                         label = "Download as CSV",
                         class = "btn3"
+                      
     )
     
   })
